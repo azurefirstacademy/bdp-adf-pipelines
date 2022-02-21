@@ -16,6 +16,14 @@
 			{
 				"name": "STATE_NAME",
 				"type": "varchar"
+			},
+			{
+				"name": "DWH_CREATED_DATE",
+				"type": "date"
+			},
+			{
+				"name": "DWH_UPDATED_DATE",
+				"type": "date"
 			}
 		],
 		"typeProperties": {
