@@ -1,0 +1,27 @@
+{
+	"name": "dst_DIM_STATE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lns_sql_server_reporting_db",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "STATE_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "STATE_NAME",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dwh",
+			"table": "DIM_STATE"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

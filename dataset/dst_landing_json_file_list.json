@@ -1,0 +1,27 @@
+{
+	"name": "dst_landing_json_file_list",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lns_landing",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "bdp-landing-to-staging-file-list.json",
+				"fileSystem": "config"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"sourceFileName": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

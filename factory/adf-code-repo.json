@@ -1,0 +1,9 @@
+{
+	"name": "adf-code-repo",
+	"location": "uksouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "dddb92a0-e329-45e6-acd6-f4b05f52ec8d",
+		"tenantId": "a9e0f6b2-13bd-4c72-987b-14b68ba9202a"
+	}
+}

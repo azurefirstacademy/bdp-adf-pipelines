@@ -1,0 +1,67 @@
+{
+	"name": "dst_sql_staging_tables",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lns_sql_server_reporting_db",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "DATE_OF_PRICING",
+				"type": "date"
+			},
+			{
+				"name": "ROW_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "STATE_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "MARKET_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "PRODUCTGROUP_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "PRODUCT_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "VARIETY",
+				"type": "varchar"
+			},
+			{
+				"name": "ORIGIN",
+				"type": "varchar"
+			},
+			{
+				"name": "ARRIVAL_IN_TONNES",
+				"type": "varchar"
+			},
+			{
+				"name": "MINIMUM_PRICE",
+				"type": "varchar"
+			},
+			{
+				"name": "MAXIMUM_PRICE",
+				"type": "varchar"
+			},
+			{
+				"name": "MODAL_PRICE",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "staging",
+			"table": "STAGING_01_DAILY_PRICING"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

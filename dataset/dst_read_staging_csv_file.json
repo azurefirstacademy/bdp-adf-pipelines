@@ -1,0 +1,73 @@
+{
+	"name": "dst_read_staging_csv_file",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lns_landing",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "trg_PW_MW_DR_01012019.csv",
+				"fileSystem": "standardised"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "DATE_OF_PRICING",
+				"type": "String"
+			},
+			{
+				"name": "ROW_ID",
+				"type": "String"
+			},
+			{
+				"name": "STATE_NAME",
+				"type": "String"
+			},
+			{
+				"name": "MARKET_NAME",
+				"type": "String"
+			},
+			{
+				"name": "PRODUCTGROUP_NAME",
+				"type": "String"
+			},
+			{
+				"name": "PRODUCT_NAME",
+				"type": "String"
+			},
+			{
+				"name": "VARIETY",
+				"type": "String"
+			},
+			{
+				"name": "ORIGIN",
+				"type": "String"
+			},
+			{
+				"name": "ARRIVAL_IN_TONNES",
+				"type": "String"
+			},
+			{
+				"name": "MINIMUM_PRICE",
+				"type": "String"
+			},
+			{
+				"name": "MAXIMUM_PRICE",
+				"type": "String"
+			},
+			{
+				"name": "MODAL_PRICE",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

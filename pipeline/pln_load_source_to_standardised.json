@@ -1,0 +1,103 @@
+{
+	"name": "pln_load_source_to_standardised",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup Source Table List",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "dst_read_source_table_list",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup Source Table List",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup Source Table List').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Set Variable Using Source Array Value",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "keyColumnList",
+								"value": {
+									"value": "@item().standardisedTableKeyColumns",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set Varaible Convert Array to String",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Set Variable Using Source Array Value",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "keyColumnString",
+								"value": {
+									"value": "@join(variables('keyColumnList'),',')",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"keyColumnList": {
+				"type": "Array"
+			},
+			"keyColumnString": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-02-08T11:45:05Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,147 @@
+{
+	"name": "pln_master_ingest",
+	"properties": {
+		"activities": [
+			{
+				"name": "Until Run All Source Files Processed",
+				"type": "Until",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@variables('allsourceprocessedflag')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Get Metadata Find Number Of Target Files",
+							"type": "GetMetadata",
+							"dependsOn": [
+								{
+									"activity": "Execute Pipeline Landing to Staging",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "dst_Target_File_List",
+									"type": "DatasetReference"
+								},
+								"fieldList": [
+									"childItems"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "Filter Only File",
+							"type": "Filter",
+							"dependsOn": [
+								{
+									"activity": "Get Metadata Find Number Of Target Files",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('Get Metadata Find Number Of Target Files').output.childItems",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@equals(item().type,'File')",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set variable Target File Count",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Filter Only File",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "targetFileCount",
+								"value": {
+									"value": "@string(length(activity('Filter Only File').output.value))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set variable all source files processed flag",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Set variable Target File Count",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "allsourceprocessedflag",
+								"value": {
+									"value": "@equals(variables('targetFileCount'),'3')",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Execute Pipeline Landing to Staging",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pln_copy_landing_to_standardised",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": false
+							}
+						}
+					],
+					"timeout": "00.00:10:00"
+				}
+			}
+		],
+		"variables": {
+			"allsourceprocessedflag": {
+				"type": "Boolean",
+				"defaultValue": false
+			},
+			"targetFileCount": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-02-11T17:21:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

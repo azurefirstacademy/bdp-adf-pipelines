@@ -1,0 +1,96 @@
+{
+	"name": "dst_source_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lns_landing",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"sourceContainerName": {
+				"type": "string",
+				"defaultValue": "landing"
+			},
+			"sourceFolderName": {
+				"type": "string",
+				"defaultValue": "json"
+			},
+			"sourceFileName": {
+				"type": "string",
+				"defaultValue": "PW_MW_DR_01012019.json"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().sourceFileName",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().sourceFolderName",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().sourceContainerName",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"row_id": {
+					"type": "integer"
+				},
+				"Market_Center": {
+					"type": "string"
+				},
+				"Arrivals_in_tonnes": {
+					"type": "string"
+				},
+				"Unit_of_Arrivals": {
+					"type": "string"
+				},
+				"Origin": {
+					"type": "string"
+				},
+				"Variety": {
+					"type": "string"
+				},
+				"Minimum_Price": {
+					"type": "string"
+				},
+				"Maximum_Price": {
+					"type": "string"
+				},
+				"Modal_Price": {
+					"type": "string"
+				},
+				"Unit_of_Price": {
+					"type": "string"
+				},
+				"Others": {
+					"type": "string"
+				},
+				"Pricing_date": {
+					"type": "string"
+				},
+				"state_name": {
+					"type": "string"
+				},
+				"market_name": {
+					"type": "string"
+				},
+				"productgroup_name": {
+					"type": "string"
+				},
+				"productname": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

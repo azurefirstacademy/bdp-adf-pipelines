@@ -1,0 +1,46 @@
+{
+	"name": "dst_read_source_table_list",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lns_data_lake_storage_raw_data_lake",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "pins-odw-source-to-standardised-table-list.json",
+				"folderPath": "config",
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"sourceTableSchemaName": {
+					"type": "string"
+				},
+				"sourceTableName": {
+					"type": "string"
+				},
+				"sourceTableKeyColumns": {
+					"type": "string"
+				},
+				"standardisedFolderName": {
+					"type": "string"
+				},
+				"standardisedTablename": {
+					"type": "string"
+				},
+				"standardisedTableKeyColumns": {
+					"type": "string"
+				},
+				"standardisedDatabaseName": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

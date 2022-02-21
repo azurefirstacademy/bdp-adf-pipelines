@@ -1,0 +1,48 @@
+{
+	"name": "dfl_dim_state",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dst_sql_staging_tables",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereadstatenames"
+				},
+				{
+					"dataset": {
+						"referenceName": "dst_DIM_STATE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcedimstate"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dst_DIM_STATE",
+						"type": "DatasetReference"
+					},
+					"name": "sinkDIMSTATE"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SurrogateKeyForStateID"
+				},
+				{
+					"name": "LookupTargetDimensionTable"
+				},
+				{
+					"name": "SelectMappedTargetColumns"
+				},
+				{
+					"name": "AlterRowInsertNewStateNames"
+				}
+			],
+			"script": "source(output(\n\t\tSTATE_NAME as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'SELECT DISTINCT\\n  [STATE_NAME]\\n  FROM [staging].[STAGING_01_DAILY_PRICING]',\n\tformat: 'query') ~> sourcereadstatenames\nsource(output(\n\t\tSTATE_ID as integer,\n\t\tSTATE_NAME as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourcedimstate\nsourcereadstatenames keyGenerate(output(STATE_ID as long),\n\tstartAt: 1L) ~> SurrogateKeyForStateID\nSurrogateKeyForStateID, sourcedimstate lookup(sourcereadstatenames@STATE_NAME == sourcedimstate@STATE_NAME,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> LookupTargetDimensionTable\nLookupTargetDimensionTable select(mapColumn(\n\t\tSTATE_NAME = sourcereadstatenames@STATE_NAME,\n\t\tSTATE_ID = SurrogateKeyForStateID@STATE_ID,\n\t\tTARGET_STATE_ID = sourcedimstate@STATE_ID\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectMappedTargetColumns\nSelectMappedTargetColumns alterRow(insertIf(isNull(TARGET_STATE_ID))) ~> AlterRowInsertNewStateNames\nAlterRowInsertNewStateNames sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSTATE_ID as integer,\n\t\tSTATE_NAME as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tSTATE_ID,\n\t\tSTATE_NAME\n\t)) ~> sinkDIMSTATE"
+		}
+	}
+}

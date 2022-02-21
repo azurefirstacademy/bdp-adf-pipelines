@@ -1,0 +1,16 @@
+{
+	"name": "dst_azure_table_raw_data_lake_files",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lns_azure_table_storage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "tblrawdatalakefiles"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
