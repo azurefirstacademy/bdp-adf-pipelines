@@ -1,0 +1,459 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ADF-BDP-DEV-01"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pln_load_staging_to_sqldb_staging')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data from csv staging to sql staging",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "truncate table staging.STAGING_01_DAILY_PRICING",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"validateDataConsistency": true,
+							"logSettings": {
+								"enableCopyActivityLog": true,
+								"copyActivityLogSettings": {
+									"logLevel": "Warning",
+									"enableReliableLogging": false
+								},
+								"logLocationSettings": {
+									"linkedServiceName": {
+										"referenceName": "lns_landing",
+										"type": "LinkedServiceReference"
+									},
+									"path": "standardised/logs"
+								}
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "DATE_OF_PRICING",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DATE_OF_PRICING",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "ROW_ID",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ROW_ID",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "STATE_NAME",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "STATE_NAME",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "MARKET_NAME",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "MARKET_NAME",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "PRODUCTGROUP_NAME",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "PRODUCTGROUP_NAME",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "PRODUCT_NAME",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "PRODUCT_NAME",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "VARIETY",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "VARIETY",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ORIGIN",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ORIGIN",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ARRIVAL_IN_TONNES",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ARRIVAL_IN_TONNES",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "MINIMUM_PRICE",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "MINIMUM_PRICE",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "MAXIMUM_PRICE",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "MAXIMUM_PRICE",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "MODAL_PRICE",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "MODAL_PRICE",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "dst_read_staging_csv_file",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "dst_sql_staging_tables",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-02-16T17:43:30Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dfl_dim_state')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dst_sql_staging_tables",
+								"type": "DatasetReference"
+							},
+							"name": "sourcereadstatenames"
+						},
+						{
+							"dataset": {
+								"referenceName": "dst_DIM_STATE",
+								"type": "DatasetReference"
+							},
+							"name": "sourcedimstate"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dst_DIM_STATE",
+								"type": "DatasetReference"
+							},
+							"name": "sinkDIMSTATE"
+						}
+					],
+					"transformations": [
+						{
+							"name": "SurrogateKeyForStateID"
+						},
+						{
+							"name": "LookupTargetDimensionTable"
+						},
+						{
+							"name": "SelectMappedTargetColumns"
+						},
+						{
+							"name": "AlterRowInsertNewStateNames"
+						},
+						{
+							"name": "DerivedColumnCreatedUpdatedTimestamp"
+						}
+					],
+					"script": "source(output(\n\t\tSTATE_NAME as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'SELECT DISTINCT\\n  [STATE_NAME]\\n  FROM [staging].[STAGING_01_DAILY_PRICING]',\n\tformat: 'query') ~> sourcereadstatenames\nsource(output(\n\t\tSTATE_ID as integer,\n\t\tSTATE_NAME as string,\n\t\tDWH_CREATED_DATE as date,\n\t\tDWH_UPDATED_DATE as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourcedimstate\nsourcereadstatenames keyGenerate(output(STATE_ID as long),\n\tstartAt: 1L,\n\tstepValue: 1L) ~> SurrogateKeyForStateID\nSurrogateKeyForStateID, sourcedimstate lookup(sourcereadstatenames@STATE_NAME == sourcedimstate@STATE_NAME,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> LookupTargetDimensionTable\nLookupTargetDimensionTable select(mapColumn(\n\t\tSTATE_NAME = sourcereadstatenames@STATE_NAME,\n\t\tSTATE_ID = SurrogateKeyForStateID@STATE_ID,\n\t\tTARGET_STATE_ID = sourcedimstate@STATE_ID\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectMappedTargetColumns\nSelectMappedTargetColumns alterRow(insertIf(isNull(TARGET_STATE_ID))) ~> AlterRowInsertNewStateNames\nAlterRowInsertNewStateNames derive(PROCESSING_DATE = currentDate()) ~> DerivedColumnCreatedUpdatedTimestamp\nDerivedColumnCreatedUpdatedTimestamp sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSTATE_ID as integer,\n\t\tSTATE_NAME as string,\n\t\tDWH_CREATED_DATE as date,\n\t\tDWH_UPDATED_DATE as date\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tSTATE_ID,\n\t\tSTATE_NAME,\n\t\tDWH_CREATED_DATE = PROCESSING_DATE,\n\t\tDWH_UPDATED_DATE = PROCESSING_DATE\n\t)) ~> sinkDIMSTATE"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pln_master_ingest')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Until Run All Source Files Processed",
+						"type": "Until",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@variables('allsourceprocessedflag')",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata Find Number Of Target Files",
+									"type": "GetMetadata",
+									"dependsOn": [
+										{
+											"activity": "Execute Pipeline Landing to Staging",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "dst_Target_File_List",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"fieldList": [
+											"childItems"
+										],
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "DelimitedTextReadSettings"
+										}
+									}
+								},
+								{
+									"name": "Filter Only File",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "Get Metadata Find Number Of Target Files",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('Get Metadata Find Number Of Target Files').output.childItems",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@equals(item().type,'File')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable Target File Count",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Filter Only File",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "targetFileCount",
+										"value": {
+											"value": "@string(length(activity('Filter Only File').output.value))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable all source files processed flag",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set variable Target File Count",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "allsourceprocessedflag",
+										"value": {
+											"value": "@equals(variables('targetFileCount'),'3')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Execute Pipeline Landing to Staging",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pln_copy_landing_to_standardised",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": false,
+										"parameters": {}
+									}
+								}
+							],
+							"timeout": "00.00:10:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"allsourceprocessedflag": {
+						"type": "Boolean",
+						"defaultValue": false
+					},
+					"targetFileCount": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-02-11T17:21:29Z"
+			},
+			"dependsOn": []
+		}
+	]
+}
