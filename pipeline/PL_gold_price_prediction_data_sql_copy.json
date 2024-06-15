@@ -1,0 +1,80 @@
+{
+	"name": "PL_gold_price_prediction_data_sql_copy",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data load datalake gold layer",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "gold/price-prediction",
+							"wildcardFileName": "*.json",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"enableSkipIncompatibleRow": true,
+					"logSettings": {
+						"enableCopyActivityLog": true,
+						"copyActivityLogSettings": {
+							"logLevel": "Warning",
+							"enableReliableLogging": false
+						},
+						"logLocationSettings": {
+							"linkedServiceName": {
+								"referenceName": "LS_ADLS_DATALAKE",
+								"type": "LinkedServiceReference"
+							},
+							"path": "pricingdatalake/error_data"
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_ADLS_GOLD_PRICE_PREDICTION_DATA_SOURCE",
+						"type": "DatasetReference",
+						"parameters": {
+							"dst_prm_datalake_container_name": "pricingdatalake",
+							"dst_prm_datalake_folder_name": "gold/price-prediction"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ASQL_DATALAKE_GOLD_PRICE_PREDICTION",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-03T23:32:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

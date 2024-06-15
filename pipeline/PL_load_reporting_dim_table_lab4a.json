@@ -1,0 +1,104 @@
+{
+	"name": "PL_load_reporting_dim_table_lab4a",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata LIst Folder",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_ADLS_DAILY_PRICING_LANDING_SOURCE_FILES_LIST_lab4",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"modifiedDatetimeStart": {
+							"value": "@pipeline().parameters.pln_prm_source_file_start_date",
+							"type": "Expression"
+						},
+						"modifiedDatetimeEnd": {
+							"value": "@pipeline().parameters.pln_prm_source_file_end_date",
+							"type": "Expression"
+						},
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "If Condition check file list is empty",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata LIst Folder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@empty(activity('Get Metadata LIst Folder').output.childItems)",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PL_load_reporting_dim_table_lab4b",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"plm_prm_source_file_list": {
+										"value": "@activity('Get Metadata LIst Folder').output.childItems",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"pln_prm_source_file_start_date": {
+				"type": "string",
+				"defaultValue": "2024-01-31T01:25:00Z"
+			},
+			"pln_prm_source_file_end_date": {
+				"type": "string",
+				"defaultValue": "2024-01-31T01:25:30Z"
+			}
+		},
+		"folder": {
+			"name": "working-labs"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-02T10:20:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

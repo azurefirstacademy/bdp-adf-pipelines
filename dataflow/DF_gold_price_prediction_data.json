@@ -1,0 +1,188 @@
+{
+	"name": "DF_gold_price_prediction_data",
+	"properties": {
+		"folder": {
+			"name": "Transform"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_ASQL_REPORT_FACT_DAILY_PRICING_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereadreportfacttable"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASQL_REPORT_DIM_MARKET_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereadreportdimmarket"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ADLS_SILVER_GEOLOCATION_DATA_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereaddatalakesilvergeolocation"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_ADLS_GOLD_PRICE_PREDICTION_DATA",
+						"type": "DatasetReference"
+					},
+					"name": "sinkgoldpricepredictiondata"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectreportdimmarket"
+				},
+				{
+					"name": "joindimmarketandfactdailypricing"
+				},
+				{
+					"name": "selectdatalakegeolocationread"
+				},
+				{
+					"name": "joinpricingdatawithgeolocationdata"
+				},
+				{
+					"name": "selectgoldpricepreictionmappingcolumns"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          STATE_ID as integer,",
+				"          MARKET_ID as integer,",
+				"          PRODUCT_ID as integer,",
+				"          VARIETY_ID as integer,",
+				"          DATE_ID as integer,",
+				"          ARRIVAL_IN_TONNES as decimal(18,2),",
+				"          MINIMUM_PRICE as decimal(18,2),",
+				"          MAXIMUM_PRICE as decimal(18,2),",
+				"          MODAL_PRICE as decimal(18,2),",
+				"          DWH_CREATED_DATE as timestamp,",
+				"          DWH_UPDATED_DATE as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourcereadreportfacttable",
+				"source(output(",
+				"          MARKET_NAME as string,",
+				"          MARKET_ID as integer,",
+				"          DWH_CREATED_DATE as timestamp,",
+				"          DWH_UPDATED_DATE as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourcereadreportdimmarket",
+				"source(output(",
+				"          geolocation_id as integer,",
+				"          market_name as string,",
+				"          latitude as double,",
+				"          longitude as double,",
+				"          elevation as double,",
+				"          feature_code as string,",
+				"          country_code as string,",
+				"          administration_id as integer,",
+				"          timezone as string,",
+				"          population as integer,",
+				"          country_id as integer,",
+				"          country_name as string,",
+				"          state_division_name as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine',",
+				"     wildcardPaths:[('silver/geo-location/*.json')]) ~> sourcereaddatalakesilvergeolocation",
+				"sourcereadreportdimmarket select(mapColumn(",
+				"          DIM_MARKET_NAME = MARKET_NAME,",
+				"          DIM_MARKET_ID = MARKET_ID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectreportdimmarket",
+				"sourcereadreportfacttable, selectreportdimmarket join(MARKET_ID == DIM_MARKET_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joindimmarketandfactdailypricing",
+				"sourcereaddatalakesilvergeolocation select(mapColumn(",
+				"          geolocation_market_name = market_name,",
+				"          geolocation_latitude = latitude,",
+				"          geolocation_longitude = longitude,",
+				"          geolocation_population = population,",
+				"          geolocation_country_id = country_id,",
+				"          geolocation_country_name = country_name,",
+				"          geolocation_state_division_name = state_division_name",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectdatalakegeolocationread",
+				"joindimmarketandfactdailypricing, selectdatalakegeolocationread join(DIM_MARKET_NAME == geolocation_market_name,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinpricingdatawithgeolocationdata",
+				"joinpricingdatawithgeolocationdata select(mapColumn(",
+				"          STATE_ID,",
+				"          MARKET_ID,",
+				"          PRODUCT_ID,",
+				"          VARIETY_ID,",
+				"          DATE_ID,",
+				"          ARRIVAL_IN_TONNES,",
+				"          MINIMUM_PRICE,",
+				"          MAXIMUM_PRICE,",
+				"          MODAL_PRICE,",
+				"          MARKET_NAME = DIM_MARKET_NAME,",
+				"          geolocation_latitude,",
+				"          geolocation_longitude,",
+				"          geolocation_population,",
+				"          geolocation_country_id,",
+				"          geolocation_country_name,",
+				"          geolocation_state_division_name",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectgoldpricepreictionmappingcolumns",
+				"selectgoldpricepreictionmappingcolumns derive(DL_CREATED_DATE = currentTimestamp(),",
+				"          DL_UPDATE_DATE = currentTimestamp()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          STATE_ID,",
+				"          MARKET_ID,",
+				"          PRODUCT_ID,",
+				"          VARIETY_ID,",
+				"          DATE_ID,",
+				"          ARRIVAL_IN_TONNES,",
+				"          MINIMUM_PRICE,",
+				"          MAXIMUM_PRICE,",
+				"          MODAL_PRICE,",
+				"          MARKET_NAME,",
+				"          geolocation_latitude,",
+				"          geolocation_longitude,",
+				"          geolocation_population,",
+				"          geolocation_country_id,",
+				"          geolocation_country_name,",
+				"          geolocation_state_division_name,",
+				"          DL_CREATED_DATE,",
+				"          DL_UPDATE_DATE",
+				"     )) ~> sinkgoldpricepredictiondata"
+			]
+		}
+	}
+}

@@ -1,0 +1,143 @@
+{
+	"name": "PL_ingest_bronze_geolocation_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup read Market names Metadata File",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "DS_ADLS_DATALAKE_GEOLOCATION_MARKET_NAMES_METADATA",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach Iterate Market Name",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup read Market names Metadata File",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup read Market names Metadata File').output.value",
+						"type": "Expression"
+					},
+					"batchCount": 50,
+					"activities": [
+						{
+							"name": "Copy data read geolocation data",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_HTTP_SOURCE_GEOLOCATION_DATA",
+									"type": "DatasetReference",
+									"parameters": {
+										"dst_prm_relative_URL": {
+											"value": "@concat('v1/search?name=',item().MARKET_NAME,'&count=',pipeline().parameters.pln_prm_rest_api_result_count,'&language=en&format=',pipeline().parameters.pln_prm_rest_api_result_format)",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_ADLS_BRONZE_GEOLOCATION_DATA",
+									"type": "DatasetReference",
+									"parameters": {
+										"dst_prm_datalake_container_name": {
+											"value": "@item().DATALAKE_CONTAINER_NAME",
+											"type": "Expression"
+										},
+										"dst_prm_datalake_folder_name": {
+											"value": "@item().DATALAKE_FOLDER_NAME",
+											"type": "Expression"
+										},
+										"dst_prm_datalake_file_name": {
+											"value": "@concat(item().MARKET_NAME,'.',pipeline().parameters.pln_prm_rest_api_result_format)",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"pln_prm_rest_api_result_count": {
+				"type": "string",
+				"defaultValue": "10"
+			},
+			"pln_prm_rest_api_result_format": {
+				"type": "string",
+				"defaultValue": "json"
+			}
+		},
+		"folder": {
+			"name": "Ingest"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-03T15:41:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

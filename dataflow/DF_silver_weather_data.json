@@ -1,0 +1,171 @@
+{
+	"name": "DF_silver_weather_data",
+	"properties": {
+		"folder": {
+			"name": "Transform"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_ADLS_BRONZE_WEATHER_DATA_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcebronzeweatherdataread"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_ADLS_SILVER_WEATHER_DATA",
+						"type": "DatasetReference"
+					},
+					"name": "sinksilverweatherdata"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flattenlevel1"
+				},
+				{
+					"name": "flattenlevel3"
+				},
+				{
+					"name": "flattenLevel4"
+				},
+				{
+					"name": "flattenLevel5"
+				},
+				{
+					"name": "aggregateuniquerecords"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     df_prm_sink_weather_month_folder_name as string",
+				"}",
+				"source(output(",
+				"          latitude as double,",
+				"          longitude as double,",
+				"          generationtime_ms as double,",
+				"          utc_offset_seconds as integer,",
+				"          timezone as string,",
+				"          timezone_abbreviation as string,",
+				"          elevation as double,",
+				"          daily_units as (time as string, weather_code as string, temperature_2m_max as string, temperature_2m_min as string, rain_sum as string),",
+				"          daily as (time as string[], weather_code as integer[], temperature_2m_max as double[], temperature_2m_min as double[], rain_sum as double[]),",
+				"          Market_name as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine',",
+				"     wildcardPaths:[($df_prm_sink_weather_month_folder_name + '*.json')]) ~> sourcebronzeweatherdataread",
+				"sourcebronzeweatherdataread foldDown(unroll(daily.time, daily.time),",
+				"     mapColumn(",
+				"          latitude,",
+				"          longitude,",
+				"          generationtime_ms,",
+				"          utc_offset_seconds,",
+				"          timezone,",
+				"          timezone_abbreviation,",
+				"          elevation,",
+				"          daily_units_time = daily_units.time,",
+				"          daily_units_temperature_2m_max = daily_units.temperature_2m_max,",
+				"          daily_units_temperature_2m_min = daily_units.temperature_2m_min,",
+				"          daily_units_rain_sum = daily_units.rain_sum,",
+				"          daily_time = daily.time,",
+				"          daily_temperature_2m_max = daily.temperature_2m_max,",
+				"          daily_temperature_2m_min = daily.temperature_2m_min,",
+				"          daily_rain_sum = daily.rain_sum,",
+				"          Market_name",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenlevel1",
+				"flattenlevel1 foldDown(unroll(daily_temperature_2m_max, daily_temperature_2m_max),",
+				"     mapColumn(",
+				"          latitude,",
+				"          longitude,",
+				"          generationtime_ms,",
+				"          utc_offset_seconds,",
+				"          timezone,",
+				"          timezone_abbreviation,",
+				"          elevation,",
+				"          daily_units_time,",
+				"          daily_units_temperature_2m_max,",
+				"          daily_units_temperature_2m_min,",
+				"          daily_units_rain_sum,",
+				"          daily_time,",
+				"          daily_temperature_2m_max,",
+				"          daily_temperature_2m_min,",
+				"          daily_rain_sum,",
+				"          Market_name",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenlevel3",
+				"flattenlevel3 foldDown(unroll(daily_temperature_2m_min, daily_temperature_2m_min),",
+				"     mapColumn(",
+				"          latitude,",
+				"          longitude,",
+				"          generationtime_ms,",
+				"          utc_offset_seconds,",
+				"          timezone,",
+				"          timezone_abbreviation,",
+				"          elevation,",
+				"          daily_units_time,",
+				"          daily_units_temperature_2m_max,",
+				"          daily_units_temperature_2m_min,",
+				"          daily_units_rain_sum,",
+				"          daily_time,",
+				"          daily_temperature_2m_max,",
+				"          daily_temperature_2m_min,",
+				"          daily_rain_sum,",
+				"          Market_name",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenLevel4",
+				"flattenLevel4 foldDown(unroll(daily_rain_sum, daily_rain_sum),",
+				"     mapColumn(",
+				"          latitude,",
+				"          longitude,",
+				"          generationtime_ms,",
+				"          utc_offset_seconds,",
+				"          timezone,",
+				"          timezone_abbreviation,",
+				"          elevation,",
+				"          daily_units_time,",
+				"          daily_units_temperature_2m_max,",
+				"          daily_units_temperature_2m_min,",
+				"          daily_units_rain_sum,",
+				"          daily_time,",
+				"          daily_temperature_2m_max,",
+				"          daily_temperature_2m_min,",
+				"          daily_rain_sum,",
+				"          Market_name",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenLevel5",
+				"flattenLevel5 aggregate(groupBy(daily_units_time,",
+				"          latitude,",
+				"          longitude,",
+				"          daily_units_temperature_2m_max,",
+				"          daily_units_temperature_2m_min,",
+				"          daily_units_rain_sum,",
+				"          daily_time,",
+				"          daily_temperature_2m_max,",
+				"          daily_temperature_2m_min,",
+				"          daily_rain_sum,",
+				"          Market_name),",
+				"     count_market_name = count(Market_name)) ~> aggregateuniquerecords",
+				"aggregateuniquerecords sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinksilverweatherdata"
+			]
+		}
+	}
+}

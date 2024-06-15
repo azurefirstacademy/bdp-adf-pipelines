@@ -1,0 +1,20 @@
+{
+	"name": "TUMTRG_DAILY_REPORTING_TABLES_LOAD",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Hour",
+			"interval": 24,
+			"startTime": "2024-01-31T01:25:00Z",
+			"endTime": "2024-02-01T01:25:00Z",
+			"delay": "00:00:00",
+			"maxConcurrency": 1,
+			"retryPolicy": {
+				"intervalInSeconds": 30
+			},
+			"dependsOn": []
+		}
+	}
+}

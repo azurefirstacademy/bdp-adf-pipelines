@@ -1,0 +1,302 @@
+{
+	"name": "DF_load_reporting_fact_daily_pricing_table",
+	"properties": {
+		"folder": {
+			"name": "Transform"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_ADLS_DAILY_PRICING_LANDING_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereaddailypricing"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASQL_REPORT_DIM_STATE_LOOKUP",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereaddimstatelookup"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASQL_REPORT_DIM_MARKET_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereaddimmarketlookup"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASQL_REPORT_DIM_PRODUCT_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereaddimproductlookup"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASQL_REPORT_DIM_VARIETY_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereaddimvariety"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASQL_REPORT_DIM_DATE_SOURCE",
+						"type": "DatasetReference"
+					},
+					"name": "sourcereaddimdatelookup"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_ASQL_REPORT_FACT_DAILY_PRICING",
+						"type": "DatasetReference"
+					},
+					"name": "sinkfactdailyprcing"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectfacttablecolumns"
+				},
+				{
+					"name": "selectstatenamelookup"
+				},
+				{
+					"name": "lookupstatename"
+				},
+				{
+					"name": "selectmarketnamelookup"
+				},
+				{
+					"name": "lookupMarketName"
+				},
+				{
+					"name": "selectproductnamelookup"
+				},
+				{
+					"name": "lookupproductname"
+				},
+				{
+					"name": "selectvarietynamelookup"
+				},
+				{
+					"name": "lookupvarietyname"
+				},
+				{
+					"name": "selectdatelookup"
+				},
+				{
+					"name": "derivedColumnformatdate"
+				},
+				{
+					"name": "lookupdate"
+				},
+				{
+					"name": "selectfacttablemappingcolumns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          DATE_OF_PRICING as string,",
+				"          ROW_ID as string,",
+				"          STATE_NAME as string,",
+				"          MARKET_NAME as string,",
+				"          PRODUCTGROUP_NAME as string,",
+				"          PRODUCT_NAME as string,",
+				"          VARIETY as string,",
+				"          ORIGIN as string,",
+				"          ARRIVAL_IN_TONNES as string,",
+				"          MINIMUM_PRICE as string,",
+				"          MAXIMUM_PRICE as string,",
+				"          MODAL_PRICE as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourcereaddailypricing",
+				"source(output(",
+				"          STATE_NAME as string,",
+				"          STATE_ID as integer,",
+				"          DWH_CREATED_DATE as timestamp,",
+				"          DWH_UPDATED_DATE as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourcereaddimstatelookup",
+				"source(output(",
+				"          MARKET_NAME as string,",
+				"          MARKET_ID as integer,",
+				"          DWH_CREATED_DATE as timestamp,",
+				"          DWH_UPDATED_DATE as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourcereaddimmarketlookup",
+				"source(output(",
+				"          PRODUCT_NAME as string,",
+				"          PRODUCTGROUP_NAME as string,",
+				"          PRODUCT_ID as integer,",
+				"          DWH_CREATED_DATE as timestamp,",
+				"          DWH_UPDATED_DATE as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourcereaddimproductlookup",
+				"source(output(",
+				"          VARIETY as string,",
+				"          VARIETY_ID as integer,",
+				"          DWH_CREATED_DATE as timestamp,",
+				"          DWH_UPDATED_DATE as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourcereaddimvariety",
+				"source(output(",
+				"          DATE_OF_PRICING as date,",
+				"          DATE_ID as integer,",
+				"          DWH_CREATED_DATE as timestamp,",
+				"          DWH_UPDATED_DATE as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourcereaddimdatelookup",
+				"sourcereaddailypricing select(mapColumn(",
+				"          DATE_OF_PRICING,",
+				"          ROW_ID,",
+				"          STATE_NAME,",
+				"          MARKET_NAME,",
+				"          PRODUCTGROUP_NAME,",
+				"          PRODUCT_NAME,",
+				"          VARIETY,",
+				"          ARRIVAL_IN_TONNES,",
+				"          MINIMUM_PRICE,",
+				"          MAXIMUM_PRICE,",
+				"          MODAL_PRICE",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectfacttablecolumns",
+				"sourcereaddimstatelookup select(mapColumn(",
+				"          LOOKUP_STATE_NAME = STATE_NAME,",
+				"          LOOKUP_STATE_ID = STATE_ID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectstatenamelookup",
+				"selectfacttablecolumns, selectstatenamelookup lookup(trim(STATE_NAME) == trim(LOOKUP_STATE_NAME),",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupstatename",
+				"sourcereaddimmarketlookup select(mapColumn(",
+				"          LOOKUP_MARKET_NAME = MARKET_NAME,",
+				"          LOOKUP_MARKET_ID = MARKET_ID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectmarketnamelookup",
+				"lookupstatename, selectmarketnamelookup lookup(trim(MARKET_NAME) == trim(LOOKUP_MARKET_NAME),",
+				"     multiple: true,",
+				"     broadcast: 'auto')~> lookupMarketName",
+				"sourcereaddimproductlookup select(mapColumn(",
+				"          LOOKUP_PRODUCT_NAME = PRODUCT_NAME,",
+				"          LOOKUP_PRODUCTGROUP_NAME = PRODUCTGROUP_NAME,",
+				"          LOOKUP_PRODUCT_ID = PRODUCT_ID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectproductnamelookup",
+				"lookupMarketName, selectproductnamelookup lookup(PRODUCT_NAME == LOOKUP_PRODUCT_NAME",
+				"     && PRODUCTGROUP_NAME == LOOKUP_PRODUCTGROUP_NAME,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupproductname",
+				"sourcereaddimvariety select(mapColumn(",
+				"          LOOKUP_VARIETY = VARIETY,",
+				"          LOOKUP_VARIETY_ID = VARIETY_ID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectvarietynamelookup",
+				"lookupproductname, selectvarietynamelookup lookup(VARIETY == LOOKUP_VARIETY,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupvarietyname",
+				"sourcereaddimdatelookup select(mapColumn(",
+				"          LOOKUP_DATE_OF_PRICING = DATE_OF_PRICING,",
+				"          LOOKUP_DATE_ID = DATE_ID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectdatelookup",
+				"lookupvarietyname derive(DATE_OF_PRICING_FORMATTED = toDate(DATE_OF_PRICING , 'MM/dd/yyyy'),",
+				"          DWH_CREATED_DATE = currentDate(),",
+				"          DWH_UPDATED_DATE = currentDate()) ~> derivedColumnformatdate",
+				"derivedColumnformatdate, selectdatelookup lookup(DATE_OF_PRICING_FORMATTED == LOOKUP_DATE_OF_PRICING,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupdate",
+				"lookupdate select(mapColumn(",
+				"          DATE_OF_PRICING,",
+				"          ROW_ID,",
+				"          STATE_NAME,",
+				"          MARKET_NAME,",
+				"          PRODUCTGROUP_NAME,",
+				"          PRODUCT_NAME,",
+				"          VARIETY,",
+				"          ARRIVAL_IN_TONNES,",
+				"          MINIMUM_PRICE,",
+				"          MAXIMUM_PRICE,",
+				"          MODAL_PRICE,",
+				"          LOOKUP_STATE_ID,",
+				"          LOOKUP_MARKET_ID,",
+				"          LOOKUP_PRODUCT_ID,",
+				"          LOOKUP_VARIETY_ID,",
+				"          DWH_CREATED_DATE,",
+				"          DWH_UPDATED_DATE,",
+				"          LOOKUP_DATE_ID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectfacttablemappingcolumns",
+				"selectfacttablemappingcolumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          STATE_ID as integer,",
+				"          MARKET_ID as integer,",
+				"          PRODUCT_ID as integer,",
+				"          VARIETY_ID as integer,",
+				"          DATE_ID as integer,",
+				"          ARRIVAL_IN_TONNES as decimal(18,2),",
+				"          MINIMUM_PRICE as decimal(18,2),",
+				"          MAXIMUM_PRICE as decimal(18,2),",
+				"          MODAL_PRICE as decimal(18,2),",
+				"          DWH_CREATED_DATE as timestamp,",
+				"          DWH_UPDATED_DATE as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          STATE_ID = LOOKUP_STATE_ID,",
+				"          MARKET_ID = LOOKUP_MARKET_ID,",
+				"          PRODUCT_ID = LOOKUP_PRODUCT_ID,",
+				"          VARIETY_ID = LOOKUP_VARIETY_ID,",
+				"          DATE_ID = LOOKUP_DATE_ID,",
+				"          ARRIVAL_IN_TONNES,",
+				"          MINIMUM_PRICE,",
+				"          MAXIMUM_PRICE,",
+				"          MODAL_PRICE,",
+				"          DWH_CREATED_DATE,",
+				"          DWH_UPDATED_DATE",
+				"     )) ~> sinkfactdailyprcing"
+			]
+		}
+	}
+}

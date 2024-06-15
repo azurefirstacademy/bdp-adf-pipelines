@@ -1,0 +1,29 @@
+{
+	"name": "TWTRY_MONTHLY_GLOBAL_PRICING_INGEST",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipeline": {
+			"pipelineReference": {
+				"referenceName": "PL_ingest_monthly_global_pricing_data",
+				"type": "PipelineReference"
+			},
+			"parameters": {
+				"pln_prm_source_file_date": "@trigger().outputs.windowStartTime"
+			}
+		},
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Month",
+			"interval": 1,
+			"startTime": "2023-01-01T00:00:00Z",
+			"endTime": "2023-12-31T00:00:00Z",
+			"delay": "00:00:00",
+			"maxConcurrency": 1,
+			"retryPolicy": {
+				"intervalInSeconds": 30
+			},
+			"dependsOn": []
+		}
+	}
+}

@@ -1,0 +1,30 @@
+{
+	"name": "TMTRG_DAILY_REPORTING_TABLE_LOAD_NEW",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipeline": {
+			"pipelineReference": {
+				"referenceName": "PL_load_reporting_tables",
+				"type": "PipelineReference"
+			},
+			"parameters": {
+				"pln_prm_source_file_start_date": "@trigger().outputs.windowStartTime",
+				"pln_prm_source_file_end_date": "@trigger().outputs.windowEndTime"
+			}
+		},
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Minute",
+			"interval": 15,
+			"startTime": "2024-02-02T12:20:00Z",
+			"endTime": "2024-02-02T15:46:00Z",
+			"delay": "00:00:00",
+			"maxConcurrency": 1,
+			"retryPolicy": {
+				"intervalInSeconds": 30
+			},
+			"dependsOn": []
+		}
+	}
+}

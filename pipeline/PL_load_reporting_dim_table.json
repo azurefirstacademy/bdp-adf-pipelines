@@ -1,0 +1,246 @@
+{
+	"name": "PL_load_reporting_dim_table",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach Iterate Source Files List",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.pln_prm_source_file_list",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "DF_load_reporting_dim_state_table",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_load_reporting_dim_state_table",
+									"type": "DataFlowReference",
+									"parameters": {
+										"dfl_prm_reporting_schema_name": "'REPORTING'",
+										"dfl_prm_reporting_table_name": "'DIM_STATE'",
+										"dfl_prm_reporting_lookup_column_name": "'STATE_NAME'",
+										"dfl_prm_reporting_table_id_column": "'STATE_ID'"
+									},
+									"datasetParameters": {
+										"sourcereaddailypricingdata": {
+											"dst_prm_landing_container_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_container_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_folder_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_folder_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_file_name": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						},
+						{
+							"name": "DF_load_reporting_dim_market_table",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "DF_load_reporting_dim_state_table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_load_reporting_dim_market_table",
+									"type": "DataFlowReference",
+									"parameters": {
+										"dfl_prm_reporting_schema_name": "'REPORTING'",
+										"dfl_prm_reporting_table_name": "'DIM_MARKET'",
+										"dfl_prm_reporting_lookup_column_name": "'MARKET_NAME'",
+										"dfl_prm_reporting_table_id_column": "'MARKET_ID'"
+									},
+									"datasetParameters": {
+										"sourcereaddailypricingdata": {
+											"dst_prm_landing_container_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_container_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_folder_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_folder_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_file_name": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						},
+						{
+							"name": "DF_load_reporting_dim_variety_table",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "DF_load_reporting_dim_product_table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_load_reporting_dim_variety_table",
+									"type": "DataFlowReference",
+									"parameters": {
+										"dfl_prm_reporting_schema_name": "'REPORTING'",
+										"dfl_prm_reporting_table_name": "'DIM_VARIETY'",
+										"dfl_prm_reporting_lookup_column_name": "'VARIETY'",
+										"dfl_prm_reporting_table_id_column": "'VARIETY_ID'"
+									},
+									"datasetParameters": {
+										"sourcereaddailypricingdata": {
+											"dst_prm_landing_container_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_container_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_folder_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_folder_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_file_name": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						},
+						{
+							"name": "DF_load_reporting_dim_product_table",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "DF_load_reporting_dim_market_table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_load_reporting_dim_product_table",
+									"type": "DataFlowReference",
+									"parameters": {
+										"dfl_prm_reporting_schema_name": "'REPORTING'",
+										"dfl_prm_reporting_table_name": "'DIM_PRODUCT'",
+										"dfl_prm_reporting_lookup_column_name": "'PRODUCT_NAME'",
+										"dfl_prm_reporting_table_id_column": "'PRODUCT_ID'"
+									},
+									"datasetParameters": {
+										"sourcereaddailypricingdata": {
+											"dst_prm_landing_container_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_container_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_folder_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_folder_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_file_name": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"pln_prm_source_file_list": {
+				"type": "array"
+			},
+			"pln_prm_landing_container_name": {
+				"type": "string",
+				"defaultValue": "landing"
+			},
+			"pln_prm_landing_folder_name": {
+				"type": "string",
+				"defaultValue": "daily-pricing"
+			}
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-02T11:21:19Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

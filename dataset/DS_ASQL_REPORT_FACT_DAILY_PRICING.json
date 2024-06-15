@@ -1,0 +1,82 @@
+{
+	"name": "DS_ASQL_REPORT_FACT_DAILY_PRICING",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ASQL_REPORTING_DB",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "STATE_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "MARKET_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PRODUCT_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "VARIETY_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DATE_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ARRIVAL_IN_TONNES",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "MINIMUM_PRICE",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "MAXIMUM_PRICE",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "MODAL_PRICE",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "DWH_CREATED_DATE",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DWH_UPDATED_DATE",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "REPORTING",
+			"table": "FACT_DAILY_PRICING"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

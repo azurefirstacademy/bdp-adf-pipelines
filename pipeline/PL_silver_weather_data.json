@@ -1,0 +1,109 @@
+{
+	"name": "PL_silver_weather_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "DF_silver_weather_data",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Set variable weather month",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DF_silver_weather_data",
+						"type": "DataFlowReference",
+						"parameters": {
+							"df_prm_sink_weather_month_folder_name": {
+								"value": "'@{concat(pipeline().parameters.pln_prm_datalake_folde_name_bronze,variables('pln_var_weather_month'),'/')}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"sourcebronzeweatherdataread": {
+								"dst_prm_datalake_container_name": "pricingdatalake",
+								"dst_prm_datalake_folder_name": "bronze/weather-data/202301/"
+							},
+							"sinksilverweatherdata": {
+								"dst_prm_datalake_container_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_container_name",
+									"type": "Expression"
+								},
+								"dst_prm_datalake_folder_name": {
+									"value": "@concat(pipeline().parameters.pln_prm_datalake_folde_name_silver,variables('pln_var_weather_month'))",
+									"type": "Expression"
+								},
+								"dst_prm_datalake_file_name": "Adampur.json"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Set variable weather month",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pln_var_weather_month",
+					"value": {
+						"value": "@formatDateTime(pipeline().parameters.pln_prm_weather_start_date,'yyyyMM')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"pln_prm_weather_start_date": {
+				"type": "string"
+			},
+			"pln_prm_weather_end_date": {
+				"type": "string"
+			},
+			"pln_prm_datalake_container_name": {
+				"type": "string",
+				"defaultValue": "pricingdatalake"
+			},
+			"pln_prm_datalake_folde_name_bronze": {
+				"type": "string",
+				"defaultValue": "bronze/weather-data/"
+			},
+			"pln_prm_datalake_folde_name_silver": {
+				"type": "string",
+				"defaultValue": "silver/weather-data/"
+			}
+		},
+		"variables": {
+			"pln_var_weather_month": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-03T21:24:51Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

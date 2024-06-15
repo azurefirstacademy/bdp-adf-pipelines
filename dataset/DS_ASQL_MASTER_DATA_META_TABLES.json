@@ -1,0 +1,16 @@
+{
+	"name": "DS_ASQL_MASTER_DATA_META_TABLES",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ASQL_MASTER_DATA",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Ingest"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,45 @@
+{
+	"name": "DS_ADLS_PARQUET_GLOBAL_PRICING_DATA",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_DATALAKE",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"dst_prm_datalake_container_name": {
+				"type": "string"
+			},
+			"dst_prm_datalake_folder_name": {
+				"type": "string"
+			},
+			"dst_prm_datalake_file_name": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Ingest"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().dst_prm_datalake_file_name",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().dst_prm_datalake_folder_name",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().dst_prm_datalake_container_name",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,9 @@
+{
+	"name": "ADF-UDA-DEV",
+	"location": "uksouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "52c3fc91-5974-4fa8-af3d-25eef2eb63a7",
+		"tenantId": "d302aa22-4298-4335-9242-6e84d24182d6"
+	}
+}

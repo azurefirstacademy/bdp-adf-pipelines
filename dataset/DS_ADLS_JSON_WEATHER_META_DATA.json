@@ -1,0 +1,54 @@
+{
+	"name": "DS_ADLS_JSON_WEATHER_META_DATA",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_LANDING",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "working-labs"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "metadata-weather-data-geo-goordinates.json",
+				"fileSystem": "adf-metadata"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"market_name": {
+					"type": "string"
+				},
+				"latitude": {
+					"type": "number"
+				},
+				"longitude": {
+					"type": "number"
+				},
+				"country_code": {
+					"type": "string"
+				},
+				"country": {
+					"type": "string"
+				},
+				"state_name": {
+					"type": "string"
+				},
+				"state_admin_name": {
+					"type": "string"
+				},
+				"datalake_container_name": {
+					"type": "string"
+				},
+				"datalake_folder_name": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

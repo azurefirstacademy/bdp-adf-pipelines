@@ -1,0 +1,57 @@
+{
+	"name": "PL_load_reporting_dim_table_lab4b",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.plm_prm_source_file_list",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Set variable2",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "source_file_name",
+								"value": {
+									"value": "@item().name",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"plm_prm_source_file_list": {
+				"type": "array"
+			}
+		},
+		"variables": {
+			"callinpipeline": {
+				"type": "String"
+			},
+			"source_file_name": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "working-labs"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-02T10:20:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

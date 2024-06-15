@@ -1,0 +1,73 @@
+{
+	"name": "PL_silver_geolocation_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "DF_silver_geolocation_data",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DF_silver_geolocation_data",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"sourcereadeolocationbronzedata": {
+								"dst_prm_datalake_container_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_container_name_bronze",
+									"type": "Expression"
+								},
+								"dst_prm_datalake_folder_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_folder_name_bronze",
+									"type": "Expression"
+								}
+							},
+							"sinkgeolocationsilverlayer": {
+								"dst_prm_datalake_container_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_container_name_silver",
+									"type": "Expression"
+								},
+								"dst_prm_datalake_folder_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_folder_name_silver",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"pln_prm_datalake_container_name_bronze": {
+				"type": "string"
+			},
+			"pln_prm_datalake_folder_name_bronze": {
+				"type": "string"
+			},
+			"pln_prm_datalake_container_name_silver": {
+				"type": "string"
+			},
+			"pln_prm_datalake_folder_name_silver": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-03T18:57:41Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

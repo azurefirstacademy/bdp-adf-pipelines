@@ -1,0 +1,23 @@
+{
+	"name": "DS_ADLS_GEOLOCATION_META_DATA_lab5",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_LANDING",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "working-labs"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "metadata-weather-data-geo-goordinates.json",
+				"fileSystem": "adf-metadata"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

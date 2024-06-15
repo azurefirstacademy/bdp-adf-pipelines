@@ -1,0 +1,104 @@
+{
+	"name": "DS_ADLS_BRONZE_GEOLOCATION_DATA_SOURCE_lab5",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_DATALAKE",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"dst_prm_datalake_container_name": {
+				"type": "string"
+			},
+			"dst_prm_datalake_folder_name": {
+				"type": "string"
+			},
+			"dst_prm_datalake_file_name": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "working-labs"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().dst_prm_datalake_file_name",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().dst_prm_datalake_folder_name",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().dst_prm_datalake_container_name",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"results": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "integer"
+							},
+							"name": {
+								"type": "string"
+							},
+							"latitude": {
+								"type": "number"
+							},
+							"longitude": {
+								"type": "number"
+							},
+							"elevation": {
+								"type": "number"
+							},
+							"feature_code": {
+								"type": "string"
+							},
+							"country_code": {
+								"type": "string"
+							},
+							"admin1_id": {
+								"type": "integer"
+							},
+							"admin2_id": {
+								"type": "integer"
+							},
+							"timezone": {
+								"type": "string"
+							},
+							"population": {
+								"type": "integer"
+							},
+							"country_id": {
+								"type": "integer"
+							},
+							"country": {
+								"type": "string"
+							},
+							"admin1": {
+								"type": "string"
+							},
+							"admin2": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"generationtime_ms": {
+					"type": "number"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

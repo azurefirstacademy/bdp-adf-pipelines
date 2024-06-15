@@ -1,0 +1,135 @@
+{
+	"name": "PL_load_reporting_tables",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata LIst Files",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_ADLS_DAILY_PRICING_LANDING_SOURCE_FILES_LIST",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"modifiedDatetimeStart": {
+							"value": "@pipeline().parameters.pln_prm_source_file_start_date",
+							"type": "Expression"
+						},
+						"modifiedDatetimeEnd": {
+							"value": "@pipeline().parameters.pln_prm_source_file_end_date",
+							"type": "Expression"
+						},
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "If Condition check Child Not Empty",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata LIst Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@empty(activity('Get Metadata LIst Files').output.childItems)",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "PL_load_reporting_dim_table",
+							"type": "ExecutePipeline",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
+							"dependsOn": [
+								{
+									"activity": "PL_load_reporting_Fact_table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PL_load_reporting_dim_table",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"pln_prm_source_file_list": {
+										"value": "@activity('Get Metadata LIst Files').output.childItems",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "PL_load_reporting_Fact_table",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PL_load_reporting_Fact_table",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"pln_prm_source_file_list": {
+										"value": "@activity('Get Metadata LIst Files').output.childItems",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"pln_prm_source_file_start_date": {
+				"type": "string",
+				"defaultValue": "2024-01-31T01:25:00Z"
+			},
+			"pln_prm_source_file_end_date": {
+				"type": "string",
+				"defaultValue": "2024-01-31T01:25:30Z"
+			}
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-02T13:57:51Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

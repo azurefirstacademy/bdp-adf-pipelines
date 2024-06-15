@@ -1,0 +1,80 @@
+{
+	"name": "DS_ADLS_SILVER_GEOLOCATION_DATA_SOURCE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_DATALAKE",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"dst_prm_datalake_container_name": {
+				"type": "string"
+			},
+			"dst_prm_datalake_folder_name": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().dst_prm_datalake_folder_name",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().dst_prm_datalake_container_name",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"geolocation_id": {
+					"type": "integer"
+				},
+				"market_name": {
+					"type": "string"
+				},
+				"latitude": {
+					"type": "number"
+				},
+				"longitude": {
+					"type": "number"
+				},
+				"elevation": {
+					"type": "number"
+				},
+				"feature_code": {
+					"type": "string"
+				},
+				"country_code": {
+					"type": "string"
+				},
+				"administration_id": {
+					"type": "integer"
+				},
+				"timezone": {
+					"type": "string"
+				},
+				"population": {
+					"type": "integer"
+				},
+				"country_id": {
+					"type": "integer"
+				},
+				"country_name": {
+					"type": "string"
+				},
+				"state_division_name": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

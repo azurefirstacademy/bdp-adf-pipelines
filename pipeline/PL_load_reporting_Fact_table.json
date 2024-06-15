@@ -1,0 +1,81 @@
+{
+	"name": "PL_load_reporting_Fact_table",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach Iterate Source Files List",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.pln_prm_source_file_list",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "DF_load_reporting_fact_daily_pricing_table",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_load_reporting_fact_daily_pricing_table",
+									"type": "DataFlowReference",
+									"datasetParameters": {
+										"sourcereaddailypricing": {
+											"dst_prm_landing_container_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_container_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_folder_name": {
+												"value": "@pipeline().parameters.pln_prm_landing_folder_name",
+												"type": "Expression"
+											},
+											"dst_prm_landing_file_name": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 32,
+									"computeType": "General"
+								},
+								"traceLevel": "Coarse"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"pln_prm_source_file_list": {
+				"type": "array"
+			},
+			"pln_prm_landing_container_name": {
+				"type": "string",
+				"defaultValue": "landing"
+			},
+			"pln_prm_landing_folder_name": {
+				"type": "string",
+				"defaultValue": "daily-pricing"
+			}
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-02T14:37:28Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

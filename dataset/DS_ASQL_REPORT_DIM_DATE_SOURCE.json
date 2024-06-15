@@ -1,0 +1,42 @@
+{
+	"name": "DS_ASQL_REPORT_DIM_DATE_SOURCE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ASQL_REPORTING_DB",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "DATE_OF_PRICING",
+				"type": "date"
+			},
+			{
+				"name": "DATE_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DWH_CREATED_DATE",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DWH_UPDATED_DATE",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "REPORTING",
+			"table": "DIM_DATE"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

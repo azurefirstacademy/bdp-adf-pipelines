@@ -1,0 +1,96 @@
+{
+	"name": "PL_gold_price_prediction_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "DF_gold_price_prediction_data",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DF_gold_price_prediction_data",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"sourcereaddatalakesilvergeolocation": {
+								"dst_prm_datalake_container_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_container_name",
+									"type": "Expression"
+								},
+								"dst_prm_datalake_folder_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_silver_folder_name",
+									"type": "Expression"
+								}
+							},
+							"sinkgoldpricepredictiondata": {
+								"dst_prm_datalake_container_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_container_name",
+									"type": "Expression"
+								},
+								"dst_prm_datalake_folder_name": {
+									"value": "@pipeline().parameters.pln_prm_datalake_gold_folder_name",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "PL_gold_price_prediction_data_sql_copy",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DF_gold_price_prediction_data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_gold_price_prediction_data_sql_copy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"parameters": {
+			"pln_prm_datalake_container_name": {
+				"type": "string",
+				"defaultValue": "pricingdatalake"
+			},
+			"pln_prm_datalake_silver_folder_name": {
+				"type": "string",
+				"defaultValue": "silver/geo-location"
+			},
+			"pln_prm_datalake_gold_folder_name": {
+				"type": "string",
+				"defaultValue": "gold/price-prediction"
+			}
+		},
+		"folder": {
+			"name": "Transform"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-03T23:38:32Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

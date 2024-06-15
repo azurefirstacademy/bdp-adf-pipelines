@@ -1,0 +1,31 @@
+{
+	"name": "DS_ASQL_MASTER_DATA_TABLE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ASQL_MASTER_DATA",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"dst_prm_schema_name": {
+				"type": "string"
+			},
+			"dst_prm_table_name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().dst_prm_schema_name",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().dst_prm_table_name",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
