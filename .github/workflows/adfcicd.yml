@@ -29,5 +29,8 @@ jobs:
         uses: actions/setup-node@v3.4.1
         with:
           node-version: 18.x
-          
+    # Runs a single command using the runners shell
+      - name: Install ADF Utilities Package
+        run: npm install
+        working-directory: ${{github.workspace}}/build
 
